@@ -11,6 +11,12 @@ Cosmos.Coroutines has the following limitations:
 
 Other than this, it can act as a normal cooperative kernel task scheduler.
 
+## Installing
+To install Cosmos.Coroutines, you can use NuGet; either use the NuGet package manager in your IDE of choice, or, in a package manager terminal, type in:
+```powershell
+NuGet\Install-Package Cosmos.Coroutines -Version 1.0.0
+```
+
 ## Usage
 After importing the library to your project, you will be able to include a `using Cosmos.System.Coroutines` directive. This will result in the following classes being available to you:
 - `Coroutine` - represents a single coroutine. A coroutine can belong to only one `CoroutinePool`.
@@ -27,7 +33,7 @@ CoroutinePool.Main.StartPool();
 
 To create a coroutine:
 ```cs
-var coroutine = new Coroutine(MyCoroutine5());
+var coroutine = new Coroutine(MyCoroutine1());
 coroutine.Start(); // will run the coroutine on the main pool; to run it in another, use CoroutinePool.AddCoroutine
 
 // ...
