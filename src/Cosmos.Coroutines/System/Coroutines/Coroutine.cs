@@ -42,13 +42,25 @@ namespace Cosmos.System.Coroutines
         /// Starts the execution of this coroutine on the global coroutine pool.
         /// </summary>
         /// <exception cref="InvalidOperationException">Thrown when an attempt is made to start the coroutine while it's already running.</exception>
-        public void Start()
+        /// <param name="autoJoin">if false will not auto join main pool.</param>
+        public void Start(bool autoJoin = true)
         {
             if(Running) {
                 throw new InvalidOperationException("Cannot start an already running Coroutine.");
             }
 
-            CoroutinePool.Main.AddCoroutine(this);
+            if (autoJoin && Pool == null)
+            {
+                CoroutinePool.Main.AddCoroutine(this);
+            }
+
+            if (Pool == null)
+            {
+                throw new InvalidOperationException("Cannot start Coroutine not in a pool.");
+            }
+
+            Running = true;
+            
         }
 
         /// <summary>

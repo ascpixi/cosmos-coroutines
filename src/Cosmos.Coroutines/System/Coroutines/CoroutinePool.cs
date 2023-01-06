@@ -111,7 +111,7 @@ namespace Cosmos.System.Coroutines
         {
             coroutines.Add(coroutine);
             coroutine.Join(this);
-            coroutine.Running = true;
+            
         }
 
         /// <summary>
