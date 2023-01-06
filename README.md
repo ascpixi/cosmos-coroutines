@@ -55,7 +55,7 @@ You can start as many coroutines as you want, however please note that with more
 ### Creating a "main" function
 Sometimes, after performing a cycle over all coroutines, you want to execute kernel code to perform e.g. maintanance tasks. This can be easily achieved using the `CoroutinePool.OnCoroutineCycle` event:
 ```cs
-CoroutinePool.OnCoroutineCycle += Main;
+CoroutinePool.Main.OnCoroutineCycle += Main;
 CoroutinePool.Main.StartPool();
 
 // ...
