@@ -1,29 +1,29 @@
 # cosmos-coroutines
 A simple, non-preemptive coroutine scheduler that allows for cooperative multitasking within Cosmos kernels.
 
-This project is mainly to demonstrate the ability to use the C# iterator feature to achieve cooperative multitasking. In itself, it is very simplistic; the whole implementation is contained in only six files.
+This project was created to demonstrate the ability to use C#'s iterator support to achieve cooperative multitasking.
 
 ## Limitations
 Cosmos.Coroutines has the following limitations:
-- non-preemptive; you need to do a `yield return` to hand back control over to the coroutine scheduler
-- basic round-robin; no prority system
-- CPU halting in many parts of Cosmos will also halt the coroutine pool scheduler
+- non-preemptive; you need to do a `yield return` to hand back control to the coroutine scheduler
+- basic round-robin; no priority system
+- CPU halting - which occurs in many parts of Cosmos - will also halt the coroutine pool scheduler
 
-Other than this, it can act as a normal cooperative kernel task scheduler.
+Other than the caveats mentioned above, the coroutine system can act like a cooperative kernel task scheduler.
 
 ## Installing
-To install Cosmos.Coroutines, you can use [NuGet](https://www.nuget.org/packages/Cosmos.Coroutines); either use the NuGet package manager in your IDE of choice, or, in a package manager terminal, type in:
+Cosmos.Coroutines is available on [NuGet](https://www.nuget.org/packages/Cosmos.Coroutines); either use the NuGet package manager in your IDE of choice, or, in a package manager terminal, type in:
 ```powershell
 NuGet\Install-Package Cosmos.Coroutines -Version 1.0.0
 ```
 
 ## Usage
-After importing the library into your project, you will be able to include a `using Cosmos.System.Coroutines` directive. This will result in the following classes being available to you:
-- `Coroutine` - represents a single coroutine. A coroutine can belong to only one `CoroutinePool`.
-- `CoroutinePool` - manages multiple coroutines and schedules stepping through iterations (`yield`s). A global `CoroutinePool` is allocated on startup and can be accessed using `CoroutinePool.Main`. This pool will not affect the execution of the OS in any way until `StartPool` will be called.
-- `CoroutineControlPoint` - an object returned by IEnumerators and accepted by the "Coroutine" constructor. Specifies whether the coroutine should be ticked at a given time.
+The following classes are included in the `Cosmos.System.Coroutines` namespace:
+- `Coroutine` - represents a coroutine, which can belong to only one `CoroutinePool`.
+- `CoroutinePool` - manages multiple coroutines. A global `CoroutinePool` is allocated on startup and can be accessed using `CoroutinePool.Main`. This pool will not affect the execution of the OS in any way until the `StartPool` instance method is called.
+- `CoroutineControlPoint` - an object returned by valid coroutine implementations of the `IEnumerator` interface, and accepted by the `Coroutine` constructor. Specifies whether the coroutine should be ticked at a given time.
 - `WaitFor` - a `CoroutineControlPoint` that waits for the specified amount of nanoseconds.
-- `WaitUntil` - a `CoroutineControlPoint` that waits until a condition is met.
+- `WaitUntil` - a `CoroutineControlPoint` that waits until a given condition is met.
 - `WaitIndefinetly` - a `CoroutineControlPoint` that halts the coroutine until it's explicitly un-halted through said control point.
 
 To use the main `CoroutinePool`, simply do:
@@ -47,13 +47,13 @@ IEnumerator<CoroutineControlPoint> MyCoroutine1()
 }
 ```
 
-You can start as many coroutines as you want, however please note that with more coroutines, the slower the operating system gets.
+You can start as many coroutines as you want, however, please note that with more coroutines, the slower the operating system gets.
 
 > **Warning**<br>
 > A coroutine is not the same as a traditional C# thread, and you should not mistake the two. A C# thread is **preempted**; that is, if the thread encounters, for example, an infinite loop, the kernel will still continue to execute, as the thread will be automatically switched from (preempted) after a time quantum. A coroutine relies on the method to voluntarily give back control to the pool; if a software bug appears that would make the coroutine refrain from giving back control to the pool, the kernel would halt.
 
 ### Creating a "main" function
-Sometimes, after performing a cycle over all coroutines, you want to execute kernel code to perform e.g. maintanance tasks. This can be easily achieved using the `CoroutinePool.OnCoroutineCycle` event:
+After performing a cycle over all coroutines, you may want to execute kernel code, to perform e.g. maintanance tasks. This can be easily achieved using the `CoroutinePool.OnCoroutineCycle` event:
 ```cs
 CoroutinePool.Main.OnCoroutineCycle += Main;
 CoroutinePool.Main.StartPool();
@@ -68,4 +68,4 @@ void Main() {
 As this is a regular C# event, you can have as many handlers as you want.
 
 ## Coroutines and memory management
-`CoroutinePool`s can be set to automatically collect all unused objects on the heap after all coroutines finish a single cycle. This is enabled by default for the main pool but disabled for user-created pools. It's strongly recommended to enable periodic heap collection if you're running the pool on your main thread (as is most likely the case with Cosmos).
+`CoroutinePool`s can be set to automatically collect all unused objects on the heap after the executor finishes a cycle - that is, when all coroutines in its internal list have been ticked. This is enabled by default for the main pool, but disabled for user-created pools. It's strongly recommended to enable periodic heap collection if you're running the pool on your main thread (as is most likely the case with Cosmos).
