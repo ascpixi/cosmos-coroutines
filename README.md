@@ -14,7 +14,7 @@ Other than the caveats mentioned above, the coroutine system can act like a coop
 ## Installing
 Cosmos.Coroutines is available on [NuGet](https://www.nuget.org/packages/Cosmos.Coroutines); either use the NuGet package manager in your IDE of choice, or, in a package manager terminal, type in:
 ```powershell
-NuGet\Install-Package Cosmos.Coroutines -Version 1.0.0
+NuGet\Install-Package Cosmos.Coroutines -Version 1.0.1
 ```
 
 ## Usage
@@ -53,9 +53,9 @@ You can start as many coroutines as you want, however, please note that with mor
 > A coroutine is not the same as a traditional C# thread, and you should not mistake the two. A C# thread is **preempted**; that is, if the thread encounters, for example, an infinite loop, the kernel will still continue to execute, as the thread will be automatically switched from (preempted) after a time quantum. A coroutine relies on the method to voluntarily give back control to the pool; if a software bug appears that would make the coroutine refrain from giving back control to the pool, the kernel would halt.
 
 ### Creating a "main" function
-After performing a cycle over all coroutines, you may want to execute kernel code, to perform e.g. maintanance tasks. This can be easily achieved using the `CoroutinePool.OnCoroutineCycle` event:
+After performing a cycle over all coroutines, you may want to execute kernel code, to perform e.g. maintanance tasks. This can be easily achieved using the `CoroutinePool.OnCoroutineCycle` delegate list:
 ```cs
-CoroutinePool.Main.OnCoroutineCycle += Main;
+CoroutinePool.Main.OnCoroutineCycle.Add(Main);
 CoroutinePool.Main.StartPool();
 
 // ...
@@ -65,7 +65,7 @@ void Main() {
 }
 ```
 
-As this is a regular C# event, you can have as many handlers as you want.
+This is a list of delegates instead of a standard C# event, as these are currently non-functional on Cosmos. [See this issue for more details.](https://github.com/CosmosOS/Cosmos/issues/2765)
 
 ## Coroutines and memory management
 `CoroutinePool`s can be set to automatically collect all unused objects on the heap after the executor finishes a cycle - that is, when all coroutines in its internal list have been ticked. This is enabled by default for the main pool, but disabled for user-created pools. It's strongly recommended to enable periodic heap collection if you're running the pool on your main thread (as is most likely the case with Cosmos).
