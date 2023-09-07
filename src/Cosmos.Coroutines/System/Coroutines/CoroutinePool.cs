@@ -35,7 +35,10 @@ namespace Cosmos.System.Coroutines
         /// <summary>
         /// Fired every time a full coroutine execution cycle is performed.
         /// </summary>
-        public event Action? OnCoroutineCycle;
+        // NOTE: As of the time of writing this comment, Cosmos currently doesn't have
+        //       the plugs to support events (MulticastDelegate.*). As a work-around,
+        //       a list of delegates is used instead.
+        public readonly List<Action> OnCoroutineCycle = new();
 
         /// <summary>
         /// Whether the pool should perform heap collection after coroutine cycles.
@@ -167,7 +170,9 @@ namespace Cosmos.System.Coroutines
                     coroutine.Running = false;
                 }
 
-                OnCoroutineCycle?.Invoke();
+                foreach (var handler in OnCoroutineCycle) {
+                    handler.Invoke();
+                }
 
                 if(shouldCollectOnNextCycle) {
                     Heap.Collect();
