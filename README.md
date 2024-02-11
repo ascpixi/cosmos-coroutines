@@ -49,7 +49,7 @@ IEnumerator<CoroutineControlPoint> MyCoroutine1()
 
 You can start as many coroutines as you want, however, please note that with more coroutines, the slower the operating system gets.
 
-> **Warning**<br>
+> [!WARNING]
 > A coroutine is not the same as a traditional C# thread, and you should not mistake the two. A C# thread is **preempted**; that is, if the thread encounters, for example, an infinite loop, the kernel will still continue to execute, as the thread will be automatically switched from (preempted) after a time quantum. A coroutine relies on the method to voluntarily give back control to the pool; if a software bug appears that would make the coroutine refrain from giving back control to the pool, the kernel would halt.
 
 ### Creating a "main" function
